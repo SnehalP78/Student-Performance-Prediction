@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prediction Result | Student Analytics</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 25px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #172443;
+    background:
+        radial-gradient(circle at 5% 5%, #e7e4ff, transparent 32%),
+        radial-gradient(circle at 95% 90%, #d9f6f5, transparent 30%),
+        #f5f6fc;
+}
+
+.card {
+    width: 100%;
+    max-width: 650px;
+    padding: 36px;
+    text-align: center;
+    background: white;
+    border: 1px solid #e7eaf3;
+    border-radius: 25px;
+    box-shadow: 0 20px 55px #27305c17;
+    animation: appear .5s ease;
+}
+
+.brand {
+    color: #6657d9;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.icon {
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    margin: 25px auto 18px;
+    background: #eeebff;
+    border-radius: 23px;
+    font-size: 38px;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(25px, 5vw, 34px);
+    letter-spacing: -.7px;
+}
+
+.subtitle {
+    color: #778198;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 12px 0 25px;
+}
+
+.result-box {
+    padding: 27px 20px;
+    background: linear-gradient(140deg, #f5f2ff, #edfbfc);
+    border: 1px solid #e3e0ff;
+    border-radius: 19px;
+}
+
+.label {
+    color: #69758d;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#grade {
+    margin: 12px 0 17px;
+    color: #5142c2;
+    font-size: clamp(42px, 9vw, 58px);
+    font-weight: 800;
+    letter-spacing: -2px;
+}
+
+.track {
+    height: 12px;
+    max-width: 430px;
+    margin: auto;
+    overflow: hidden;
+    background: #dedff0;
+    border-radius: 20px;
+}
+
+#bar {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #6657d9, #1596a8);
+    border-radius: 20px;
+    transition: width 1s ease;
+}
+
+#message {
+    color: #53617b;
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 20px 0 0;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+button {
+    flex: 1;
+    min-width: 160px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid #dedff0;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .2s, background .2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+.primary {
+    color: white;
+    background: #5e50ce;
+    border-color: #5e50ce;
+}
+
+.primary:hover { background: #4c3db8; }
+
+.secondary {
+    color: #5142c2;
+    background: white;
+}
+
+.secondary:hover { background: #f5f3ff; }
+
+.note {
+    margin-top: 22px;
+    color: #8992a6;
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+    .card { padding: 26px 18px; }
+    .buttons { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+<main class="card">
+    <div class="brand">STUDENT ANALYTICS</div>
+
+    <div class="icon">🎓</div>
+
+    <h1>Prediction Result</h1>
+    <p class="subtitle">
+        Your student performance prediction has been generated.
+    </p>
+
+    <section class="result-box">
+        <div class="label">Predicted Final Grade</div>
+        <div id="grade">-- / 20</div>
+
+        <div
+            class="track"
+            role="progressbar"
+            aria-label="Predicted final grade"
+            aria-valuemin="0"
+            aria-valuemax="20"
+            aria-valuenow="0"
+            id="progressTrack"
+        >
+            <div id="bar"></div>
+        </div>
+
+        <p id="message">Loading your prediction...</p>
+    </section>
+
+    <div class="buttons">
+        <button class="primary" id="backButton" type="button">
+            ← Back to Form
+        </button>
+        <button class="secondary" id="clearButton" type="button">
+            ↻ Clear Result
+        </button>
+    </div>
+
+    <p class="note">
+        Educational demonstration only. This prediction is an estimate,
+        not a guaranteed result or a substitute for a teacher's assessment.
+    </p>
+</main>
+
+<script>
+const grade = sessionStorage.getItem("studentPredictedGrade");
+const message = sessionStorage.getItem("studentPredictionMessage");
+
+if (grade === null || !Number.isFinite(Number(grade))) {
+    document.getElementById("grade").textContent = "-- / 20";
+    document.getElementById("message").textContent =
+        "No prediction found. Please return to the form and predict again.";
+} else {
+    const score = Math.max(0, Math.min(20, Number(grade)));
+
+    document.getElementById("grade").textContent =
+        score.toFixed(2) + " / 20";
+
+    document.getElementById("message").textContent =
+        message || "Your prediction is ready.";
+
+    document.getElementById("progressTrack").setAttribute(
+        "aria-valuenow", String(score)
+    );
+
+    requestAnimationFrame(() => {
+        document.getElementById("bar").style.width =
+            (score / 20 * 100) + "%";
+    });
+}
+
+document.getElementById("backButton").addEventListener("click", () => {
+    window.location.href = "/";
+});
+
+document.getElementById("clearButton").addEventListener("click", () => {
+    sessionStorage.removeItem("studentPredictedGrade");
+    sessionStorage.removeItem("studentPredictionMessage");
+    window.location.href = "/";
+});
+</script>
+</body>
+</html>
